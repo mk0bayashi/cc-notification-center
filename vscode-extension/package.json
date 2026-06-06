@@ -1,0 +1,14 @@
+{
+  "name": "cc-session-focus",
+  "displayName": "CC Session Focus",
+  "description": "cc-notification-center のメニューバーから、対応する VSCode ターミナル/ウィンドウへ正確にジャンプする",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {}
+}

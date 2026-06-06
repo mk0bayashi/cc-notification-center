@@ -1,0 +1,11 @@
+# ランタイム生成物(状態ファイル等は ~/.claude/cc-notification-center/ に置かれる)
+*.log
+.DS_Store
+
+# エディタ
+.vscode/
+.idea/
+
+# node(将来 vsix 化する場合)
+node_modules/
+*.vsix

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 940px; height: 600px;
+    font-family: -apple-system, "SF Pro Text", "Hiragino Sans", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  body {
+    /* デスクトップ風の背景 */
+    background: linear-gradient(135deg, #4b3f8f 0%, #6a4fb6 35%, #2f6fb0 100%);
+    position: relative;
+  }
+
+  /* メニューバー */
+  .menubar {
+    position: absolute; top: 0; left: 0; right: 0; height: 28px;
+    background: rgba(20,18,30,0.45);
+    backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 14px; gap: 16px;
+    color: #fff; font-size: 13px;
+  }
+  .menubar .sysitem { opacity: 0.9; font-size: 12px; }
+  /* 我々のインジケータ(選択中ハイライト) */
+  .indicator {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.22);
+    padding: 3px 9px; border-radius: 6px;
+    font-size: 12.5px; font-weight: 500;
+  }
+  .indicator .dot { width: 9px; height: 9px; border-radius: 50%; }
+
+  /* ドロップダウン */
+  .menu {
+    position: absolute; top: 34px; right: 70px;
+    width: 372px;
+    background: rgba(38,38,42,0.86);
+    backdrop-filter: blur(40px);
+    border: 0.5px solid rgba(255,255,255,0.14);
+    border-radius: 12px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+    padding: 6px;
+    color: #fff;
+  }
+  .row {
+    display: flex; align-items: center; gap: 9px;
+    padding: 6px 10px; border-radius: 7px; font-size: 13.5px;
+    white-space: nowrap;
+  }
+  .row.head { color: #9b9b9f; font-size: 12px; padding: 5px 10px 4px; }
+  .row.sel { background: rgba(255,255,255,0.10); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto; }
+  .proj { font-weight: 500; }
+  .age { color: #8b8b90; font-size: 12px; margin-left: 4px; }
+  .sep { height: 1px; background: rgba(255,255,255,0.10); margin: 5px 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 6px 10px; font-size: 11.5px; color: #b9b9be; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend .dot { width: 9px; height: 9px; }
+  .action { color: #cfcfd4; font-size: 13px; }
+
+  /* 状態色 */
+  .c-perm { color: #FF9F0A; } .bg-perm { background: #FF9F0A; }
+  .c-input{ color: #BF5AF2; } .bg-input{ background: #BF5AF2; }
+  .c-wait { color: #30D158; } .bg-wait { background: #30D158; }
+  .c-work { color: #0A84FF; } .bg-work { background: #0A84FF; }
+  .c-idle { color: #8E8E93; } .bg-idle { background: #8E8E93; }
+
+  .title {
+    position: absolute; left: 40px; bottom: 38px; color: #fff;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.35);
+  }
+  .title h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; }
+  .title p { font-size: 15px; opacity: 0.9; margin-top: 8px; max-width: 460px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <!-- メニューバー -->
+  <div class="menubar">
+    <span class="indicator"><span class="dot bg-perm"></span>承認待ち 3</span>
+    <span class="sysitem">🔋</span>
+    <span class="sysitem">📶</span>
+    <span class="sysitem">Q</span>
+    <span class="sysitem">9:41</span>
+  </div>
+
+  <!-- ドロップダウン -->
+  <div class="menu">
+    <div class="row head">Claude Code セッション: 6</div>
+    <div class="sep"></div>
+    <div class="row sel"><span class="dot bg-perm"></span><span class="proj c-perm">web-dashboard</span><span class="c-perm">— 承認待ち</span><span class="age">·12s</span></div>
+    <div class="row"><span class="dot bg-input"></span><span class="proj c-input">design-system</span><span class="c-input">— 入力待ち</span><span class="age">·25s</span></div>
+    <div class="row"><span class="dot bg-wait"></span><span class="proj c-wait">api-server</span><span class="c-wait">— 完了・返信待ち</span><span class="age">·1m</span></div>
+    <div class="row"><span class="dot bg-work"></span><span class="proj c-work">data-pipeline</span><span class="c-work">— 処理中…</span><span class="age">·4s</span></div>
+    <div class="row"><span class="dot bg-work"></span><span class="proj c-work">payments-svc</span><span class="c-work">— 処理中…</span><span class="age">·9s</span></div>
+    <div class="row"><span class="dot bg-idle"></span><span class="proj c-idle">docs-site</span><span class="c-idle">— 待機中</span><span class="age">·6m</span></div>
+    <div class="sep"></div>
+    <div class="legend">
+      <span><span class="dot bg-perm"></span>承認待ち</span>
+      <span><span class="dot bg-input"></span>質問</span>
+      <span><span class="dot bg-wait"></span>返信待ち</span>
+      <span><span class="dot bg-work"></span>処理中</span>
+      <span><span class="dot bg-idle"></span>待機中</span>
+    </div>
+    <div class="sep"></div>
+    <div class="row action">🔄&nbsp; 今すぐ更新</div>
+  </div>
+
+  <!-- タイトル -->
+  <div class="title">
+    <h1>cc-notification-center</h1>
+    <p>複数の Claude Code セッションの状態をメニューバーで一覧し、クリックで該当ターミナルへジャンプ。</p>
+  </div>
+</body>
+</html>
