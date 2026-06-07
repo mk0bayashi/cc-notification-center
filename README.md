@@ -1,11 +1,11 @@
 # cc-notification-center
 
-![cc-notification-center のメニューバー表示](docs/images/screenshot.png)
+![cc-notification-center のデモ](docs/images/demo.gif)
 
 複数の VSCode ウィンドウ／ターミナルで動いている **Claude Code セッションの状態を
 メニューバーで一覧** し、クリックで該当の VSCode ターミナル/ウィンドウへジャンプするための仕組み。
 
-> 上の画像はUIの再現イメージです。
+> 上の画像はUIの再現イメージ(アニメーション)です。
 
 > Monitor multiple Claude Code sessions across VSCode windows from your macOS menu bar,
 > and click to jump straight to the right terminal — even across Spaces.

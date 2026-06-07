@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:900px; height:560px; overflow:hidden;
+    font-family:-apple-system,"SF Pro Text","Hiragino Sans","Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; }
+  body { background:linear-gradient(135deg,#4b3f8f 0%,#6a4fb6 35%,#2f6fb0 100%); position:relative; }
+
+  /* メニューバー */
+  .menubar { position:absolute; top:0; left:0; right:0; height:28px;
+    background:rgba(20,18,30,0.45); backdrop-filter:blur(20px);
+    display:flex; align-items:center; justify-content:flex-end; gap:16px;
+    padding:0 14px; color:#fff; font-size:13px; z-index:5; }
+  .sysitem{ opacity:.9; font-size:12px; }
+  .indicator{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.22);
+    padding:3px 9px; border-radius:6px; font-size:12.5px; font-weight:500; }
+  .indicator .dot{ width:9px; height:9px; border-radius:50%; }
+
+  /* ドロップダウン */
+  .menu{ position:absolute; top:34px; right:70px; width:372px;
+    background:rgba(38,38,42,0.92); backdrop-filter:blur(40px);
+    border:0.5px solid rgba(255,255,255,0.14); border-radius:12px;
+    box-shadow:0 18px 50px rgba(0,0,0,0.45); padding:6px; color:#fff; z-index:4; }
+  .row{ display:flex; align-items:center; gap:9px; padding:6px 10px; border-radius:7px;
+    font-size:13.5px; white-space:nowrap; }
+  .row.head{ color:#9b9b9f; font-size:12px; padding:5px 10px 4px; }
+  .row.sel{ background:rgba(255,255,255,0.10); }
+  .row.click{ background:rgba(255,255,255,0.22); }
+  .dot{ width:11px; height:11px; border-radius:50%; flex:0 0 auto; }
+  .age{ color:#8b8b90; font-size:12px; margin-left:4px; }
+  .sep{ height:1px; background:rgba(255,255,255,0.10); margin:5px 8px; }
+  .legend{ display:flex; flex-wrap:wrap; gap:12px; padding:6px 10px; font-size:11.5px; color:#b9b9be; }
+  .legend span{ display:flex; align-items:center; gap:5px; } .legend .dot{ width:9px; height:9px; }
+  .action{ color:#cfcfd4; font-size:13px; }
+
+  .c-perm{color:#FF9F0A}.bg-perm{background:#FF9F0A}
+  .c-input{color:#BF5AF2}.bg-input{background:#BF5AF2}
+  .c-wait{color:#30D158}.bg-wait{background:#30D158}
+  .c-work{color:#0A84FF}.bg-work{background:#0A84FF}
+  .c-idle{color:#8E8E93}.bg-idle{background:#8E8E93}
+
+  /* VSCode ウィンドウ */
+  .vscode{ position:absolute; left:60px; top:64px; width:780px; height:452px;
+    border-radius:10px; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,0.55);
+    display:none; transform-origin:50% 40%; z-index:3; background:#1e1e1e; }
+  .titlebar{ height:34px; background:#323233; display:flex; align-items:center; padding:0 12px;
+    color:#cccccc; font-size:12.5px; position:relative; }
+  .lights{ display:flex; gap:8px; }
+  .lights i{ width:12px; height:12px; border-radius:50%; display:block; }
+  .lights .r{background:#ff5f57}.lights .y{background:#febc2e}.lights .g{background:#28c840}
+  .titlebar .t{ position:absolute; left:0; right:0; text-align:center; }
+  .body{ display:flex; height:calc(452px - 34px); }
+  .activity{ width:48px; background:#333333; }
+  .activity i{ display:block; width:24px; height:24px; margin:14px auto; background:#5a5a5a; border-radius:5px; }
+  .explorer{ width:170px; background:#252526; color:#bdbdbd; font-size:12.5px; padding:10px 8px; }
+  .explorer .ttl{ color:#8a8a8a; font-size:11px; letter-spacing:.5px; margin:2px 6px 8px; }
+  .explorer .f{ padding:3px 8px; border-radius:4px; }
+  .explorer .f.on{ background:#37373d; color:#fff; }
+  .main{ flex:1; display:flex; flex-direction:column; }
+  .editor{ flex:1; background:#1e1e1e; padding:12px 16px; font-family:"SF Mono",Menlo,monospace;
+    font-size:12.5px; line-height:1.7; color:#d4d4d4; }
+  .editor .ln{ color:#6a6a6a; display:inline-block; width:22px; }
+  .kw{color:#c586c0}.fn{color:#dcdcaa}.str{color:#ce9178}.cm{color:#6a9955}.var{color:#9cdcfe}
+
+  .term{ height:150px; background:#181818; border-top:1px solid #333;
+    font-family:"SF Mono",Menlo,monospace; font-size:12.5px; color:#d4d4d4; padding:10px 14px; position:relative; }
+  .term.focus{ box-shadow: inset 0 0 0 2px #30D158; }
+  .term .tabs{ color:#9a9a9a; font-size:11px; margin-bottom:8px; }
+  .term .tabs b{ color:#fff; border-bottom:2px solid #30D158; padding-bottom:6px; }
+  .term .l{ white-space:pre; }
+  .prompt{ color:#5ad15a; } .amber{ color:#FF9F0A; }
+
+  /* キャプション */
+  .cap{ position:absolute; left:50%; bottom:26px; transform:translateX(-50%);
+    background:rgba(0,0,0,0.7); color:#fff; padding:8px 16px; border-radius:20px;
+    font-size:14px; display:none; z-index:8; box-shadow:0 6px 20px rgba(0,0,0,.4); }
+  .cap .dot{ width:9px; height:9px; display:inline-block; vertical-align:middle; margin-right:7px; }
+
+  /* カーソル */
+  .cursor{ position:absolute; width:22px; height:22px; z-index:9; display:none;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+  .clickring{ position:absolute; width:34px; height:34px; border:2px solid rgba(255,255,255,.9);
+    border-radius:50%; z-index:9; display:none; transform:translate(-50%,-50%); }
+</style>
+</head>
+<body>
+  <div class="menubar">
+    <span class="indicator"><span class="dot bg-perm"></span>承認待ち 3</span>
+    <span class="sysitem">🔋</span><span class="sysitem">📶</span><span class="sysitem">9:41</span>
+  </div>
+
+  <div class="menu" id="menu">
+    <div class="row head">Claude Code セッション: 6</div>
+    <div class="sep"></div>
+    <div class="row sel" id="r0"><span class="dot bg-perm"></span><span class="c-perm">web-dashboard — 承認待ち</span><span class="age">·12s</span></div>
+    <div class="row"><span class="dot bg-input"></span><span class="c-input">design-system — 入力待ち</span><span class="age">·25s</span></div>
+    <div class="row"><span class="dot bg-wait"></span><span class="c-wait">api-server — 完了・返信待ち</span><span class="age">·1m</span></div>
+    <div class="row"><span class="dot bg-work"></span><span class="c-work">data-pipeline — 処理中…</span><span class="age">·4s</span></div>
+    <div class="row"><span class="dot bg-work"></span><span class="c-work">payments-svc — 処理中…</span><span class="age">·9s</span></div>
+    <div class="row"><span class="dot bg-idle"></span><span class="c-idle">docs-site — 待機中</span><span class="age">·6m</span></div>
+    <div class="sep"></div>
+    <div class="legend">
+      <span><span class="dot bg-perm"></span>承認待ち</span><span><span class="dot bg-input"></span>質問</span>
+      <span><span class="dot bg-wait"></span>返信待ち</span><span><span class="dot bg-work"></span>処理中</span>
+      <span><span class="dot bg-idle"></span>待機中</span>
+    </div>
+  </div>
+
+  <div class="vscode" id="vscode">
+    <div class="titlebar"><span class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></span><span class="t">web-dashboard — Visual Studio Code</span></div>
+    <div class="body">
+      <div class="activity"><i></i><i></i><i></i></div>
+      <div class="explorer">
+        <div class="ttl">WEB-DASHBOARD</div>
+        <div class="f">▸ src</div>
+        <div class="f on">app.ts</div>
+        <div class="f">index.html</div>
+        <div class="f">README.md</div>
+      </div>
+      <div class="main">
+        <div class="editor">
+          <div><span class="ln">1</span><span class="cm">// web-dashboard</span></div>
+          <div><span class="ln">2</span><span class="kw">import</span> { <span class="fn">render</span> } <span class="kw">from</span> <span class="str">"./ui"</span>;</div>
+          <div><span class="ln">3</span></div>
+          <div><span class="ln">4</span><span class="kw">export function</span> <span class="fn">main</span>() {</div>
+          <div><span class="ln">5</span>&nbsp;&nbsp;<span class="fn">render</span>(<span class="var">document</span>.body);</div>
+          <div><span class="ln">6</span>}</div>
+        </div>
+        <div class="term" id="term">
+          <div class="tabs"><b>claude</b>&nbsp;&nbsp;zsh</div>
+          <div class="l"><span class="prompt">~/projects/web-dashboard</span> $ claude</div>
+          <div class="l">✻ Claude Code</div>
+          <div class="l">&nbsp;</div>
+          <div class="l"><span class="amber">●</span> Bash コマンドを実行してよいですか? <span class="amber">(y/n)</span> ▍</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cap" id="cap"><span class="dot bg-perm"></span>web-dashboard のターミナルへジャンプ</div>
+
+  <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M5 3 L5 19 L9.5 14.5 L12.5 21 L15 20 L12 13.5 L18.5 13.5 Z" fill="#fff" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/></svg>
+  <div class="clickring" id="ring"></div>
+
+<script>
+  const S = {
+    0:{view:'menu', cur:[815,42]},
+    1:{view:'menu', cur:[650,82]},
+    2:{view:'menu', cur:[560,99]},
+    3:{view:'menu', cur:[545,101], hi:1},
+    4:{view:'menu', cur:[545,101], hi:2, click:1},
+    5:{view:'menu', cur:[545,101], hi:2, op:0.4},
+    6:{view:'vscode', scale:0.92, op:0.5},
+    7:{view:'vscode', scale:0.98, op:0.9},
+    8:{view:'vscode', scale:1, op:1},
+    9:{view:'vscode', scale:1, op:1, term:1, cap:1},
+  };
+  const f = parseInt(new URLSearchParams(location.search).get('f')||'0',10);
+  const s = S[f] || S[0];
+  const menu=document.getElementById('menu'), vs=document.getElementById('vscode'),
+        cur=document.getElementById('cursor'), ring=document.getElementById('ring'),
+        term=document.getElementById('term'), cap=document.getElementById('cap'),
+        r0=document.getElementById('r0');
+
+  if(s.view==='menu'){ menu.style.display='block'; vs.style.display='none';
+    menu.style.opacity = s.op!=null? s.op : 1;
+    r0.className = 'row sel' + (s.click? ' click' : '');
+    if(s.cur){ cur.style.display='block'; cur.style.left=s.cur[0]+'px'; cur.style.top=s.cur[1]+'px'; }
+    if(s.click){ ring.style.display='block'; ring.style.left=(s.cur[0]+6)+'px'; ring.style.top=(s.cur[1]+8)+'px'; }
+  } else { // vscode
+    menu.style.display='none'; vs.style.display='block'; cur.style.display='none';
+    vs.style.transform='scale('+(s.scale||1)+')'; vs.style.opacity = s.op!=null? s.op : 1;
+    if(s.term){ term.classList.add('focus'); }
+    if(s.cap){ cap.style.display='block'; }
+  }
+  document.documentElement.setAttribute('data-ready','1');
+</script>
+</body>
+</html>
