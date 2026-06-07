@@ -195,6 +195,10 @@ rm ~/Library/LaunchAgents/com.cc-notification-center.cleanup.plist   # ログイ
 - **クリックで該当ターミナル/ウィンドウへジャンプ**（`terminal-notifier` 導入時）。
   未導入なら `osascript` 通知にフォールバック（クリック動作なし）。`install.sh` が
   `terminal-notifier` を任意導入する。
+- **状態色アイコン**: 通知の右側に状態色のアイコン（`assets/notify/<state>.png`）を表示
+  （承認待ち=橙「!」/ 質問=紫「?」/ 完了=緑「✓」）。生成元は `assets/notify/icon.html`。
+  ※ 最近の macOS では通知の**左アイコン（アプリアイコン）は差し替え不可**のため、
+  状態色は右側のアイコンとタイトルの色絵文字（🟠🟣🟢）で示している。
 - 各イベントは1回限りなのでスパムにならない。セッション毎に通知をまとめる(`-group`)。
 - **無効化**: `touch ~/.claude/cc-notification-center/notify.off` で通知を止められる
   （ファイルを消すと再開）。

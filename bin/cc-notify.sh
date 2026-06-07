@@ -42,12 +42,20 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 FOCUS="$REPO/bin/cc-focus-session.sh"
 EXEC="bash '$FOCUS' '${SHELL_PID}@@${CWD}'"
 
+# 状態色の自前アイコンを通知の右側に表示(-contentImage)。
+# ※ 最近の macOS では左のアプリアイコン(-appIcon/-sender)は差し替え不可のため、
+#    右側の contentImage で状態色を示す。クリック→ジャンプは維持される。
+ICON="$REPO/assets/notify/${STATE}.png"
+ICON_ARGS=()
+[ -f "$ICON" ] && ICON_ARGS=(-contentImage "file://$ICON")
+
 if command -v terminal-notifier >/dev/null 2>&1; then
   terminal-notifier \
     -title "$TITLE" \
     -subtitle "$LABEL" \
     -message "$BODY" \
     -group "ccnc-${SID}" \
+    "${ICON_ARGS[@]}" \
     -execute "$EXEC" \
     -sound default >/dev/null 2>&1
 else
