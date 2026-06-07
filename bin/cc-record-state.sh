@@ -17,6 +17,9 @@ STATE_DIR="$HOME/.claude/cc-notification-center/state"
 SEEN_DIR="$HOME/.claude/cc-notification-center/seen"
 mkdir -p "$STATE_DIR" "$SEEN_DIR" 2>/dev/null
 
+# 通知スクリプト(このスクリプトと同じ bin/ にある)
+NOTIFY="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/cc-notify.sh"
+
 # jq が PATH に無い環境(GUI 起動等)でも動くよう保険
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
@@ -141,5 +144,14 @@ jq -n \
      updated_at: $now,
      updated_iso: $iso
    }' > "$TMP" 2>/dev/null && mv -f "$TMP" "$STATE_DIR/$SID.json" 2>/dev/null
+
+# --- macOS 通知 ----------------------------------------------------------
+# 注意が必要な状態になった瞬間だけ通知(各イベントは1回限りなのでスパムにならない)。
+# Stop→waiting / permission_prompt→needs_permission / elicitation_dialog→needs_input。
+case "$STATE" in
+  needs_permission|needs_input|waiting)
+    [ -x "$NOTIFY" ] && bash "$NOTIFY" "$STATE" "$PROJECT" "$SHELL_PID" "$CWD" "$SID" "$MSG" >/dev/null 2>&1 &
+    ;;
+esac
 
 exit 0

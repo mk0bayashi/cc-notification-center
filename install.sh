@@ -42,6 +42,18 @@ else
   echo "✓ jq は導入済み"
 fi
 
+# --- 1.6 terminal-notifier(任意: クリックでジャンプできる通知) ----------
+if ! command -v terminal-notifier >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+    echo "▶ terminal-notifier を導入します (brew install terminal-notifier)…"
+    brew install terminal-notifier || echo "△ terminal-notifier 導入失敗(osascript にフォールバックします)"
+  else
+    echo "△ terminal-notifier 未導入(osascript 通知にフォールバックします)"
+  fi
+else
+  echo "✓ terminal-notifier は導入済み"
+fi
+
 # --- 2. SwiftBar -------------------------------------------------------
 if [ ! -d "/Applications/SwiftBar.app" ] && ! ls -d "$HOME/Applications/SwiftBar.app" >/dev/null 2>&1; then
   if command -v brew >/dev/null 2>&1; then

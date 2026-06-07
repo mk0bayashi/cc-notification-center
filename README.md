@@ -20,6 +20,7 @@
 - **[SwiftBar](https://swiftbar.app)**（`brew install --cask swiftbar`。`install.sh` が自動導入）
 - **Node.js**（メニューバー描画と VSCode 拡張で使用）
 - **jq**（状態記録スクリプトで使用。`install.sh` が自動導入）
+- **terminal-notifier**（任意。クリックでジャンプできる通知に使用。未導入なら osascript にフォールバック。`install.sh` が任意導入）
 - **VSCode**（ターミナル/ウィンドウへのジャンプ機能に使う拡張のため。任意だが推奨）
 - **Claude Code**（[hooks](https://docs.claude.com/en/docs/claude-code/hooks) で状態を取得）
 
@@ -32,8 +33,8 @@
 ~/.claude/cc-notification-center/state/<session_id>.json   ← 状態の真実
    │                                   │
    ▼                                   ▼
-SwiftBar プラグイン                (任意) 通知 hook
-(メニューバー表示・クリックでジャンプ)   (macOS 通知 / Pushover 等・各自で設定)
+SwiftBar プラグイン                cc-notify.sh
+(メニューバー表示・クリックでジャンプ)   (macOS 通知・クリックでジャンプ)
    │ クリック → bin/cc-focus-session.sh
    ▼
 ~/.claude/cc-notification-center/focus-request.json
@@ -81,7 +82,8 @@ VSCode は全ターミナルが**単一 ptyHost を共有**しプロセスから
 | パス | 役割 |
 |---|---|
 | `bin/cc-record-state.sh` | hook 本体。各イベントから状態(shell_pid 等)を `state/*.json` に記録 |
-| `bin/cc-focus-session.sh` | メニュークリックから `focus-request.json` を書き出す |
+| `bin/cc-focus-session.sh` | メニュー/通知クリックから `focus-request.json` を書き出す |
+| `bin/cc-notify.sh` | macOS 通知(承認待ち/質問/完了)。クリックで該当ターミナルへジャンプ |
 | `bin/cc-clean-ghosts.sh` | 終了/クラッシュした(プロセス不在の)セッションの掃除(メニューから手動) |
 | `bin/cc-cleanup-stale.sh` | ログイン時に「再起動で消えたセッション」の状態ファイルを自動掃除(LaunchAgent) |
 | `vscode-extension/` | VSCode 拡張 cc-session-focus(ターミナル/ウィンドウの正確なジャンプ) |
@@ -178,9 +180,24 @@ rm ~/Library/LaunchAgents/com.cc-notification-center.cleanup.plist   # ログイ
 このツールは `~/.claude/settings.json` の hooks に自分のエントリを**追記するだけ**で、
 他の hook には触れない(追記前に `settings.json.bak.<日時>` を残す)。
 
-## 通知について
+## 通知について（macOS デスクトップ通知）
 
-メニューバー表示が主機能。承認待ち/完了などを **デスクトップ通知やスマホ通知**でも
-受け取りたい場合は、Claude Code の `Notification` / `Stop` hook に各自のスクリプト
-(例: `osascript -e 'display notification ...'` や Pushover への POST)を追加する。
-このリポジトリには個人依存の通知スクリプトは含めていない。
+メニューバー表示に加えて、注意が必要な状態になった瞬間に **macOS 通知**を出す
+(`bin/cc-notify.sh`、`cc-record-state.sh` から発火)。
+
+| 状態 | 通知 |
+|---|---|
+| 🟠 承認待ち (permission_prompt) | ○ |
+| 🟣 質問 (elicitation_dialog) | ○ |
+| 🟢 完了・返信待ち (Stop) | ○ |
+| ⚪ 待機中 (idle) | ✕（ノイズ防止） |
+
+- **クリックで該当ターミナル/ウィンドウへジャンプ**（`terminal-notifier` 導入時）。
+  未導入なら `osascript` 通知にフォールバック（クリック動作なし）。`install.sh` が
+  `terminal-notifier` を任意導入する。
+- 各イベントは1回限りなのでスパムにならない。セッション毎に通知をまとめる(`-group`)。
+- **無効化**: `touch ~/.claude/cc-notification-center/notify.off` で通知を止められる
+  （ファイルを消すと再開）。
+
+スマホ通知(Pushover 等)が欲しい場合は、別途 `Notification`/`Stop` hook に各自の
+スクリプトを足せばよい（このリポジトリには個人依存の通知スクリプトは含めない）。
